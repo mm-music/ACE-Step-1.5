@@ -1,6 +1,8 @@
 {
   "private": true,
   "scripts": {
+    "start": "bash ./start_api_server_macos.sh",
+    "start:gradio": "uv run acestep --port 8001 --enable-api",
     "docs:fetch": "node scripts/fetch-awesome.mjs",
     "docs:dev": "npm run docs:fetch && vitepress dev docs",
     "docs:build": "npm run docs:fetch && vitepress build docs",

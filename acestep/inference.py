@@ -662,7 +662,9 @@ def generate_music(
         logger.info(f"[generate_music] LLM usage decision: thinking={params.thinking}, "
                    f"use_cot_caption={params.use_cot_caption}, use_cot_language={params.use_cot_language}, "
                    f"use_cot_metas={params.use_cot_metas}, need_lm_for_cot={need_lm_for_cot}, "
-                   f"llm_initialized={llm_handler.llm_initialized if llm_handler else False}, use_lm={use_lm}")
+                   f"llm_initialized={llm_handler.llm_initialized if llm_handler else False}, use_lm={use_lm}, "
+                   f"lm_model_path={getattr(llm_handler, '_lm_full_model_path', None) or getattr(llm_handler, '_mlx_model_path', None)}, "
+                   f"lm_backend={getattr(llm_handler, 'llm_backend', None)}, skip_lm={skip_lm}")
         
         if use_lm:
             # Convert sampling parameters - handle None values safely

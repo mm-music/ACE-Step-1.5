@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import time
 from typing import Any, Callable
@@ -128,6 +129,36 @@ def run_blocking_generate(
 
     llm_is_initialized = getattr(app_state, "_llm_initialized", False)
     llm_to_pass = llm_handler if llm_is_initialized else None
+
+    # Log effective settings, not prompts/lyrics or credentials.
+    settings = {
+        "job_id": job_id,
+        "dit_model": selected_model_name,
+        "device": selected_handler.device,
+        "dtype": str(getattr(selected_handler, "dtype", None)),
+        "offload_to_cpu": getattr(selected_handler, "offload_to_cpu", None),
+        "offload_dit_to_cpu": getattr(selected_handler, "offload_dit_to_cpu", None),
+        "lm_initialized": bool(llm_to_pass and getattr(llm_to_pass, "llm_initialized", False)),
+        "lm_model_path": (
+            getattr(llm_to_pass, "_lm_full_model_path", None)
+            or getattr(llm_to_pass, "_mlx_model_path", None)
+        ),
+        "lm_backend": getattr(llm_to_pass, "llm_backend", None),
+        "generation": {
+            name: getattr(params, name, None)
+            for name in (
+                "task_type", "duration", "bpm", "keyscale", "timesignature",
+                "vocal_language", "inference_steps", "guidance_scale", "thinking",
+                "use_cot_caption", "use_cot_language", "use_cot_metas",
+                "lm_temperature", "lm_cfg_scale", "lm_top_k", "lm_top_p",
+            )
+        },
+        "output": {
+            name: getattr(config, name, None)
+            for name in ("batch_size", "audio_format", "use_random_seed", "seeds", "allow_lm_batch")
+        },
+    }
+    log_fn(f"[API Server] Job generation settings: {json.dumps(settings, ensure_ascii=False, default=str)}")
 
     last_progress = {"value": -1.0, "time": 0.0, "stage": ""}
 
